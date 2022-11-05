@@ -1,5 +1,7 @@
 import cvxpy as cp
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class Benders:
@@ -27,10 +29,10 @@ class Benders:
         self.D = np.array([-1]).reshape((self.n, self.Ny))
         self.d = np.array([-20]).reshape((self.n, 1))
 
-        self.y_init = np.array([0]).reshape((self.Ny, 1))  # Initial feasible guess
+        self.y_init = np.array([0], dtype=int).reshape((self.Ny, 1))  # Initial feasible guess
 
-        self.eps = 1e-6                                    # Convergence value
-        self.max_iterations = 30                           # Number of maximum iterations
+        self.eps = 1e-3                                    # Convergence value
+        self.max_iterations = 20                           # Number of maximum iterations
         self.LB = float('-inf')                            # Lower bound of objective function
         self.UB = float('inf')                             # Upper bound of objective function
         self.optimality_cuts = []
@@ -68,16 +70,18 @@ class Benders:
             # Update lower bound
             self.LB = obj_value_master
 
+            # Update iteration index
             i = i + 1
 
             # Save values for plotting
             self.lower_bounds.append(self.LB)
             self.upper_bounds.append(self.UB)
 
-            print("Iteration i={} : UB={}, LB={} ".format(i, self.UB, self.LB))
+            print("Iteration i={} : UB={}, LB={}".format(i, self.UB, self.LB))
 
         # Solve sub-problem with the optimal y solution to get the optimal x solution
         _, _, _, x_sol = self.solve_subproblem(y_sol)
+
         # Display the results
         self.show_results(i, obj_value_master, x_sol, y_sol)
 
@@ -164,15 +168,32 @@ class Benders:
         for r in self.feasibility_cuts:
             constraints.append(0 >= r.T@(self.b-self.B@y))  # Add feasibility cuts
         prob = cp.Problem(cp.Minimize(objective), constraints)
-        prob.solve(solver='MOSEK')
+        prob.solve(solver='MOSEK', verbose=False)
 
         return y.value, prob.value
+
+    def plot_convergence(self):
+        """Plots the convergence of the algorithm (upper & lower bounds vs iteration)."""
+
+        sns.set_theme()
+        fig, ax = plt.subplots()
+        ax.set_title("Bender's Decomposition Convergence")
+        ax.set_xlabel('Iteration')
+        ax.set_ylabel('Objective function bounds')
+        iters = np.arange(1, len(self.upper_bounds)+1, 1, dtype=int)
+        plt.plot(iters, self.upper_bounds, 'o-', label='Upper bound')
+        plt.plot(iters, self.lower_bounds, 'o-', label='Lower bound')
+        plt.xticks(iters)
+        plt.legend()
+        # plt.show()
+        plt.savefig('images/convergence.png')
 
 
 def main():
     """Solves the optimization problem."""
     benders_dec = Benders()
     benders_dec.solve_problem()
+    benders_dec.plot_convergence()
 
 
 if __name__ == '__main__':
