@@ -6,7 +6,7 @@ import seaborn as sns
 
 class Benders:
     """
-    Solves MILPs of the following form using Bender's decomposition:
+    Solves MILPs of the following form using Benders decomposition:
 
     min c_T*x + f_T*y     over x,y
     s.t   A*x + B*y >= b (m constraints)
@@ -41,7 +41,7 @@ class Benders:
         self.upper_bounds = []
 
     def solve_problem(self):
-        """Solves the MILP using Bender's decomposition."""
+        """Solves the MILP using Benders decomposition."""
         i = 0
         y_sol = self.y_init
         while self.UB - self.LB >= self.eps and i <= self.max_iterations:
@@ -177,7 +177,7 @@ class Benders:
 
         sns.set_theme()
         fig, ax = plt.subplots()
-        ax.set_title("Bender's Decomposition Convergence")
+        ax.set_title("Benders Decomposition Convergence")
         ax.set_xlabel('Iteration')
         ax.set_ylabel('Objective function bounds')
         iters = np.arange(1, len(self.upper_bounds)+1, 1, dtype=int)
