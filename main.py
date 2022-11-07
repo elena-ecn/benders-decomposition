@@ -102,7 +102,11 @@ class Benders:
         else:
             print("\n*** Optimal solution to the MILP problem found. ***")
         print("The optimal value is: {}".format(obj_value_master))
-        print("The optimal solution is x*={}, y*={}".format(*x_sol, *y_sol))
+
+        if x_sol is not None:
+            print("The optimal solution is x*={}, y*={}".format(*x_sol, *y_sol))
+        else:
+            print("\nThe algorithm did not find the optimal solution. Please try another initial feasible guess y_init!")
 
     def solve_subproblem(self, y):
         """Solves the sub-problem in the dual form.
@@ -170,7 +174,13 @@ class Benders:
         for r in self.feasibility_cuts:
             constraints.append(0 >= r.T@(self.b-self.B@y))  # Add feasibility cuts
         prob = cp.Problem(cp.Minimize(objective), constraints)
-        prob.solve(solver='MOSEK', verbose=False)
+
+        try:
+            prob.solve(solver='MOSEK', verbose=False)
+        except cp.SolverError:
+            err_msg = "Solver for Master problem failed. Please try a feasible initial solution guess y_init!\n" \
+                      "For more info, use verbose=True."
+            raise cp.SolverError(err_msg)
 
         return y.value, prob.value
 
