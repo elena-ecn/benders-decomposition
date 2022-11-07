@@ -2,6 +2,7 @@ import cvxpy as cp
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import sys
 
 
 class Benders:
@@ -29,12 +30,12 @@ class Benders:
         self.D = np.array([-1]).reshape((self.n, self.Ny))
         self.d = np.array([-20]).reshape((self.n, 1))
 
-        self.y_init = np.array([0], dtype=int).reshape((self.Ny, 1))  # Initial feasible guess
+        self.y_init = np.array([4], dtype=int).reshape((self.Ny, 1))  # Initial feasible guess (Important!)
 
         self.eps = 1e-3                                    # Convergence value
         self.max_iterations = 20                           # Number of maximum iterations
-        self.LB = float('-inf')                            # Lower bound of objective function
-        self.UB = float('inf')                             # Upper bound of objective function
+        self.LB = sys.float_info.max                       # Lower bound of objective function
+        self.UB = sys.float_info.min                       # Upper bound of objective function
         self.optimality_cuts = []
         self.feasibility_cuts = []
         self.lower_bounds = []
@@ -44,10 +45,11 @@ class Benders:
         """Solves the MILP using Benders decomposition."""
         i = 0
         y_sol = self.y_init
-        while self.UB - self.LB >= self.eps and i <= self.max_iterations:
+
+        while abs((self.UB - self.LB)/self.UB) >= self.eps and i <= self.max_iterations:
 
             # Solve sub-problem
-            p, obj_value_sp, sp_status, x_sol = self.solve_subproblem(y_sol)
+            p, obj_value_sp, sp_status, _ = self.solve_subproblem(y_sol)
 
             # Add optimality or feasibility cut for Master problem
             if sp_status == 'optimal':  # Sub-problem feasible
@@ -185,7 +187,7 @@ class Benders:
         plt.plot(iters, self.lower_bounds, 'o-', label='Lower bound')
         plt.xticks(iters)
         plt.legend()
-        # plt.show()
+        plt.show()
         plt.savefig('images/convergence.png')
 
 
