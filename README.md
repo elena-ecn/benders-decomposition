@@ -65,12 +65,12 @@ The project was created with:
 Installation
 ------------
 
-To run this project, install it locally using:
+To use this project, install it locally via:
 ```
 git clone https://github.com/elena-ecn/benders-decomposition.git
 ```
 
-The dependencies can be installed by running
+The dependencies can be installed by running:
 ```
 pip install -r requirements.txt
 ```
@@ -79,6 +79,10 @@ pip install -r requirements.txt
 However, you can use any other compatible solver to solve the optimization problems. 
 See [here](https://www.cvxpy.org/related_projects/index.html#solvers) for more information.
 
+To execute the code, run:
+```
+python3 main.py
+```
 
 License
 -------
