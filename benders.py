@@ -39,8 +39,8 @@ class Benders:
 
         self.eps = 1e-3                                    # Convergence value
         self.max_iterations = 20                           # Number of maximum iterations
-        self.LB = sys.float_info.max                       # Lower bound of objective function
-        self.UB = sys.float_info.min                       # Upper bound of objective function
+        self.LB = sys.float_info.min                       # Lower bound of objective function
+        self.UB = sys.float_info.max                       # Upper bound of objective function
         self.optimality_cuts = []
         self.feasibility_cuts = []
         self.lower_bounds = []
